@@ -38,7 +38,7 @@ except ImportError:
 import yaml
 from dotenv import dotenv_values
 
-__version__ = "1.0.4"
+__version__ = "1.0.4+patched"
 
 script = os.path.realpath(sys.argv[0])
 
@@ -981,6 +981,10 @@ def container_to_args(compose, cnt, detached=True):
     if "retries" in healthcheck:
         podman_args.extend(["--healthcheck-retries", str(healthcheck["retries"])])
 
+    group_add = cnt.get("group_add", None)
+    if group_add is not None:
+        podman_args.extend(["--group-add", group_add])
+
     podman_args.append(cnt["image"])  # command, ..etc.
     command = cnt.get("command", None)
     if command is not None:
@@ -988,6 +992,7 @@ def container_to_args(compose, cnt, detached=True):
             podman_args.extend(shlex.split(command))
         else:
             podman_args.extend([str(i) for i in command])
+
     return podman_args
 
 
